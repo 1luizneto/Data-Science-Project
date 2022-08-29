@@ -49,13 +49,12 @@ opcoes[0] = opcoes[-1]
 del(opcoes[-1])
 
 
-
 #===================================
 # Dash
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.CYBORG])
 
 fig = px.choropleth_mapbox(media19, locations='ESTADO', color='MEDIA',
-                          center={'lat': -16.95, 'lon': -47.78}, zoom=3,
+                          center={'lat': -16.95, 'lon': -47.78}, zoom=3.5,
                           geojson=mapa_brasil, color_continuous_scale='Redor', opacity=0.4,
                           hover_data={'MEDIA': True, 'MEDIA': True, 'MEDIAM': True})
 
@@ -68,7 +67,7 @@ fig.update_layout(
 )
 
 fig2 = go.Figure(layout={'template': 'plotly_dark'})
-fig2.add_trace(go.Scatter(x=media19['ESTADO'], y=media19['MEDIA']))
+fig2.add_trace(go.Bar(x=media19['ESTADO'], y=media19['MEDIA']))
 fig2.update_layout(
     paper_bgcolor='#242424',
     plot_bgcolor='#242424',
@@ -87,7 +86,7 @@ app.layout = dbc.Container(
             html.Div([
            
                 html.Img(id='logo', src=app.get_asset_url('ifpb-1.png'), height=50),
-                html.H5("Médias das notas do enem por estado"),
+                html.H4("Médias das notas do enem por estado"),
                 dbc.Button('BRASIL', color='primary', id='location-button', size='lg')
         
         ], style={}),
@@ -131,9 +130,9 @@ app.layout = dbc.Container(
                 ], md=6),
             ]),
             
-            html.P("Estado escolhido:", style={"margin-top": "40px"}),
+            html.P("Estado escolhido:", style={"margin-top": "40px"}, id='estado-escolhido'),
             
-            dcc.Graph(id='line-graph ', figure=fig2)
+            dcc.Graph(id='line-graph', figure=fig2)
         ], md=5, style={'padding': '25px', 'background-color': '#242424'}),
         
         dbc.Col([
@@ -159,14 +158,14 @@ app.layout = dbc.Container(
         Output('media20-notas-text', 'children'),
         Output('media19-notas-text', 'children'),    
     ],
-    [Input('lista-estados', 'value'),Input('location-button', 'children') ]
+    [Input('lista-estados', 'value')]
 )
-def display_status(value, location):
+def display_status(value):
     if value == 'Todos os Estados': 
-        es19 = 2019
-        es20 = 2020
-        m19 = '--'
-        m20 = '--'        
+        es19 = 0000
+        es20 = 0000
+        m19 = 0000
+        m20 = 0000        
     else:
         m19 = media19[media19['ESTADO']==value].iat[0,1]
         m19 = round(m19, 2)
@@ -178,8 +177,25 @@ def display_status(value, location):
         es20 = round(es20, 2)
     return (es19, es20, m20, m19)
 
-#===================================
+@app.callback([Output('line-graph', 'figure')], 
+    
+    [Input('lista-estados', 'value')])
+
+def plot_line_graph(value):
+    if value == 'Todos os Estados': fig2.add_trace(go.Bar(x=media19['ESTADO'], y=media19['MEDIA']))
+    else: fig2.add_trace(go.Bar(x=media19[media19['ESTADO']==value], y=media19[media19['ESTADO']==value]))
+    
+    fig2.update_layout(
+    paper_bgcolor='#242424',
+    plot_bgcolor='#242424',
+    autosize=True,
+    margin=dict(l=10, r=10, t=10, b=10)
+)
+    return fig2
+        
+
+#===================================    
 # Ligar Dash
 
 if __name__ == "__main__":
-    app.run_server(debug=False)
+    app.run_server(debug=True)
