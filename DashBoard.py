@@ -86,7 +86,7 @@ app.layout = dbc.Container(
         dbc.Col([
             html.Div([
            
-                html.Img(id='logo', src=app.get_asset_url("ifpb-1"), height=50),
+                html.Img(id='logo', src=app.get_asset_url('ifpb-1.png'), height=50),
                 html.H5("Médias das notas do enem por estado"),
                 dbc.Button('BRASIL', color='primary', id='location-button', size='lg')
         
